@@ -108,6 +108,7 @@ const TARGET = CLASS_MAP[classStartTime];
   const bookBtn = await browser.$('.bigSize.f-fr')
   await bookBtn.click()
 
+  // actually book it
   // const confirmBtn = await browser.$(".btn.u-btn.u-btn-main")
   // await confirmBtn.click()
 })();
