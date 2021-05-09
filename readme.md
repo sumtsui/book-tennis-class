@@ -3,5 +3,5 @@ npm i
 ```
 
 ```bash
-npm start -- <phoneNumber> <password>
+npm start -- <classStartTime> <phoneNumber> <password>
 ```
