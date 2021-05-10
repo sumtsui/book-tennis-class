@@ -112,4 +112,6 @@ if (!phoneNumber || !password || !TARGET) {
   // actually book it
   // const confirmBtn = await browser.$(".btn.u-btn.u-btn-main")
   // await confirmBtn.click()
+
+  process.exit()
 })();
