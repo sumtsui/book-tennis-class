@@ -8,18 +8,27 @@
   <dict>
     <key>Label</key>
     <string>local.book-tennis-class</string>
+
     <key>Program</key>
     <string>/Users/sum/Codes/tennis-class-booking/book-tennis-class.sh</string>
+
     <key>RunAtLoad</key>
     <true/>
+
     <key>StandardOutPath</key>
     <string>/tmp/local.book-tennis-class.stdout</string>
+
     <key>StandardErrorPath</key>
     <string>/tmp/local.book-tennis-class.stderr</string>
+
     <key>EnvironmentVariables</key>
     <dict>
       <key>PATH</key>
       <string>/Users/sum/.nvm/versions/node/v14.15.4/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/sum/.nvm/versions/node/v14.15.4/bin</string>
     </dict>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/sum/Codes/tennis-class-booking</string>
+
   </dict>
 </plist>

@@ -1,16 +1,5 @@
 require('dotenv').config()
 const { remote } = require('webdriverio');
-
-const [, , ...args] = process.argv;
-const classStartTime = args[0]
-const phoneNumber = args[1] || process.env.PHONE
-const password = args[2] || process.env.PASSWORD
-
-if (!phoneNumber || !password || !classStartTime) {
-  console.error('wrong args')
-  process.exit()
-}
-
 const LOGIN_URL = 'https://cloud.qingchengfit.cn/mobile/users/access/?next_url=https%3A//yun.qingchengfit.cn/shop/48560/welcome#/login';
 const COURSES_URL = 'https://yun.qingchengfit.cn/shop/48560/m/user/schedules/group/?auto=1';
 const TODAY_MID_NIGHT = new Date().toLocaleDateString();
@@ -19,22 +8,32 @@ const MILI_1300 = 1000 * 60 * 60 * 11;
 const MILI_1830 = 1000 * 60 * 60 * 18.5;
 const MILI_2000 = 1000 * 60 * 60 * 20;
 
+
 const CLASS_MAP = {
   1300: {
-    string: '13:00 - 14:00',
+    string: '13:00 - ',
     mili: TODAY_MID_NIGHT_MILI + MILI_1300
   },
   1830: {
-    string: '18:30 - 20:00',
+    string: '18:30 - ',
     mili: TODAY_MID_NIGHT_MILI + MILI_1830
   },
   2000: {
-    string: '20:00 - 21:30',
+    string: '20:00 - ',
     mili: TODAY_MID_NIGHT_MILI + MILI_2000
   }
 };
 
+const [, , ...args] = process.argv;
+const classStartTime = args[0]
+const phoneNumber = args[1] || process.env.PHONE
+const password = args[2] || process.env.PASSWORD
 const TARGET = CLASS_MAP[classStartTime];
+
+if (!phoneNumber || !password || !TARGET) {
+  console.error('wrong args')
+  process.exit()
+}
 
 (async () => {
   const browser = await remote({
@@ -91,6 +90,14 @@ const TARGET = CLASS_MAP[classStartTime];
   await classListLoading.waitForDisplayed({ reverse: true, timeout: 5000, timeoutMsg: 'class list should finish loading in 5 sec' });
 
   // go to class page
+
+  // wait till class is bookable 
+  await browser.waitUntil(function() {
+    const now = new Date().getTime()
+    return now > TARGET.mili
+    // return now > TODAY_MID_NIGHT_MILI + 3600 * 1000 * 11 + 1000 * 60 * 48  // for testing
+  }, { timeout: 1000 * 60 * 10, timeoutMsg: 'Class should be able to book in 10 min', interval: 200 })
+  
   // browser.$(function) seems can't access variables outside so need to use browser.execute
   await browser.execute((classTime) => {
     const xpath = `//span[contains(text(),'${classTime}')]`
@@ -99,12 +106,6 @@ const TARGET = CLASS_MAP[classStartTime];
   }, TARGET.string)
 
   // book it
-  await browser.waitUntil(function() {
-    const now = new Date().getTime()
-    return now > TARGET.mili
-    // return now > TODAY_MID_NIGHT_MILI + 3600 * 1000 * 11 + 1000 * 60 * 48  // for testing
-  }, { timeout: 1000 * 60 * 10, timeoutMsg: 'Class should be able to book in 10 min', interval: 200 })
-
   const bookBtn = await browser.$('.bigSize.f-fr')
   await bookBtn.click()
 
