@@ -32,7 +32,7 @@ const TARGET = CLASS_MAP[classStartTime];
 
 if (!phoneNumber || !password || !TARGET) {
   console.error('wrong args')
-  process.exit()
+  process.exit(1)
 }
 
 (async () => {
@@ -94,16 +94,29 @@ if (!phoneNumber || !password || !TARGET) {
   // wait till class is bookable 
   await browser.waitUntil(function() {
     const now = new Date().getTime()
-    return now > TARGET.mili
+    // return now > TARGET.mili
     // return now > TODAY_MID_NIGHT_MILI + 3600 * 1000 * 11 + 1000 * 60 * 48  // for testing
+    return now > TODAY_MID_NIGHT_MILI // for testing
   }, { timeout: 1000 * 60 * 10, timeoutMsg: 'Class should be able to book in 10 min', interval: 200 })
   
   // browser.$(function) seems can't access variables outside so need to use browser.execute
-  await browser.execute((classTime) => {
+  const hasClass = await browser.execute((classTime) => {
     const xpath = `//span[contains(text(),'${classTime}')]`
     const timeSpan = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-    timeSpan.parentElement.parentElement.click()
+    const classDiv = timeSpan?.parentElement?.parentElement;
+    if (classDiv) {
+      classDiv.click()
+      return true
+    }
+    else {
+      return false
+    }
   }, TARGET.string)
+
+  if (!hasClass) {
+    console.log('no class found for', classStartTime)
+    process.exit()
+  }
 
   // book it
   const bookBtn = await browser.$('.bigSize.f-fr')
@@ -113,5 +126,7 @@ if (!phoneNumber || !password || !TARGET) {
   // const confirmBtn = await browser.$(".btn.u-btn.u-btn-main")
   // await confirmBtn.click()
 
-  process.exit()
+  await browser.pause(2000);
+  console.log('done!')
+  process.exit(0);
 })();
